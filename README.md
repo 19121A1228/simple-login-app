@@ -1,14 +1,12 @@
 # Simple Login App
 
-A minimal Spring Boot web app with a login page. There is **no
-validation** - any username/password combination submitted is accepted
-and takes you straight to the welcome page. Built as a Maven project so
-it opens directly in IntelliJ IDEA.
+A minimal Spring Boot web app with a login page backed by an **H2 in-memory database**. Login credentials are validated against users loaded from `data.sql`. Built as a Maven project so it opens directly in IntelliJ IDEA.
 
 ## Tech stack
 - Java 17
 - Spring Boot 3.2.5 (Web + Thymeleaf)
 - Maven build system
+- H2 in-memory database
 - JUnit 5 for tests
 
 ## How to open in IntelliJ IDEA
@@ -27,15 +25,31 @@ it opens directly in IntelliJ IDEA.
 
 ## Try it
 
-Type literally anything into the username and password fields and submit
-— you'll always land on the welcome page with your username shown.
+1. Start the app and open: **http://localhost:8080/login**
+2. Log in with one of the demo accounts from `data.sql`, for example:
+   - `admin` / `admin123`
+3. On successful login you’ll be taken to the welcome page and your session will be created.
+
+### Protected welcome page
+
+- **/welcome** is protected by the login session.
+- If you try to access **http://localhost:8080/welcome** directly without logging in, you’ll be redirected to **/login**.
+
+### Logout
+
+Use **/logout** to end the session. After logout, the welcome page will no longer be accessible until you log in again.
 
 ## Running the tests
 
-`LoginControllerTest` checks the login form loads and that any submitted
-credentials reach the welcome page. In IntelliJ: right-click the
-`src/test/java` folder → **Run 'All Tests'**. Or from a terminal in the
-project folder:
+`LoginControllerTest` checks:
+- the login form loads,
+- valid demo credentials (from `data.sql`) allow access to the welcome page,
+- invalid credentials are rejected,
+- `/welcome` redirects to `/login` when no session is present,
+- logout ends the session.
+
+In IntelliJ: right-click the `src/test/java` folder → **Run 'All Tests'**.
+Or from a terminal in the project folder:
 
 ```bash
 mvn test
@@ -58,10 +72,12 @@ simple-login-app/
     └── LoginControllerTest.java   # confirms the form loads + any login succeeds
 ```
 
+## H2 console (optional)
+
+If enabled in `application.properties`, the H2 web console is available at:
+**http://localhost:8080/h2-console**
+
 ## Notes / next steps
 
-- There's intentionally no credential checking, no user store, and no
-  session/authentication state — submitting the form always succeeds.
-- If you later want real authentication, add a user store back in and
-  either check credentials manually or bring in Spring Security with
-  hashed passwords.
+- Authentication is backed by an H2 in-memory database seeded via `data.sql`.
+- For production use, consider storing password hashes (and using Spring Security) instead of plain-text demo passwords.
