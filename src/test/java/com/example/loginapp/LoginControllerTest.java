@@ -1,17 +1,21 @@
 package com.example.loginapp;
 
-import com.example.loginapp.controller.LoginController;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-@WebMvcTest(LoginController.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 class LoginControllerTest {
 
     @Autowired
@@ -25,20 +29,52 @@ class LoginControllerTest {
     }
 
     @Test
-    void anyCredentialsReachWelcomePage() throws Exception {
+    void validCredentialsRedirectToWelcome() throws Exception {
         mockMvc.perform(post("/login")
-                        .param("username", "whoever")
-                        .param("password", "whatever"))
+                        .param("username", "admin")
+                        .param("password", "admin123"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/welcome"));
+    }
+
+    @Test
+    void invalidCredentialsReturnLoginWithError() throws Exception {
+        mockMvc.perform(post("/login")
+                        .param("username", "admin")
+                        .param("password", "wrong"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("login"))
+                .andExpect(model().attributeExists("error"));
+    }
+
+    @Test
+    void welcomeWithoutSessionRedirectsToLogin() throws Exception {
+        mockMvc.perform(get("/welcome"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login"));
+    }
+
+    @Test
+    void welcomeWithSessionAttributeReturnsWelcomeView() throws Exception {
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute("username", "admin");
+
+        mockMvc.perform(get("/welcome").session(session))
                 .andExpect(status().isOk())
                 .andExpect(view().name("welcome"));
     }
 
     @Test
-    void emptyLookingCredentialsStillReachWelcomePage() throws Exception {
-        mockMvc.perform(post("/login")
-                        .param("username", "x")
-                        .param("password", "y"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("welcome"));
+    void logoutInvalidatesSessionAndRedirectsToLoginAndWelcomeNotAccessibleAfterwards() throws Exception {
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute("username", "admin");
+
+        mockMvc.perform(post("/logout").session(session))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login"));
+
+        mockMvc.perform(get("/welcome").session(session))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login"));
     }
 }
