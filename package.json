@@ -1,0 +1,16 @@
+{
+  "name": "simple-login-app-e2e",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Playwright + Cucumber E2E tests for simple-login-app",
+  "scripts": {
+    "e2e:install": "playwright install --with-deps",
+    "e2e": "cucumber-js --config e2e/cucumber.js"
+  },
+  "devDependencies": {
+    "@cucumber/cucumber": "^11.3.0",
+    "@playwright/test": "^1.50.0",
+    "cross-env": "^7.0.3",
+    "typescript": "^5.6.3"
+  }
+}
