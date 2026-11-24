@@ -9,12 +9,30 @@
     <div class="login-box">
         <h1>Sign In</h1>
 
+        <div th:if="${error}" class="error" role="alert" aria-live="polite">
+            <p th:text="${error}">Invalid username or password.</p>
+        </div>
+
         <form th:action="@{/login}" method="post">
             <label for="username">Username</label>
-            <input type="text" id="username" name="username" required autofocus>
+            <input
+                type="text"
+                id="username"
+                name="username"
+                th:value="${username}"
+                required
+                autofocus
+                autocomplete="username"
+            >
 
             <label for="password">Password</label>
-            <input type="password" id="password" name="password" required>
+            <input
+                type="password"
+                id="password"
+                name="password"
+                required
+                autocomplete="current-password"
+            >
 
             <button type="submit">Log In</button>
         </form>
