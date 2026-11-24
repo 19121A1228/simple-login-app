@@ -1,6 +1,6 @@
 package com.example.loginapp.controller;
 
-import com.example.loginapp.service.AuthService;
+import com.example.loginapp.UserStore;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class LoginController {
 
-    public static final String AUTH_USER = "AUTH_USER";
+    public static final String AUTHENTICATED_USER = "AUTHENTICATED_USER";
 
-    private final AuthService authService;
+    private final UserStore userStore;
 
-    public LoginController(AuthService authService) {
-        this.authService = authService;
+    public LoginController(UserStore userStore) {
+        this.userStore = userStore;
     }
 
     // Root just redirects to the login page
@@ -28,7 +28,10 @@ public class LoginController {
 
     // Show the empty login form
     @GetMapping("/login")
-    public String loginForm() {
+    public String loginForm(HttpSession session) {
+        if (session.getAttribute(AUTHENTICATED_USER) != null) {
+            return "redirect:/welcome";
+        }
         return "login";
     }
 
@@ -39,25 +42,21 @@ public class LoginController {
                               HttpSession session,
                               Model model) {
 
-        if (!StringUtils.hasText(username) || !StringUtils.hasText(password)) {
-            model.addAttribute("error", "Username and password are required.");
-            model.addAttribute("username", username);
+        String trimmedUsername = StringUtils.trimWhitespace(username);
+
+        if (!userStore.isValid(username, password)) {
+            model.addAttribute("error", "Invalid username or password");
+            model.addAttribute("username", trimmedUsername);
             return "login";
         }
 
-        if (!authService.isValid(username, password)) {
-            model.addAttribute("error", "Invalid username or password.");
-            model.addAttribute("username", username);
-            return "login";
-        }
-
-        session.setAttribute(AUTH_USER, username);
+        session.setAttribute(AUTHENTICATED_USER, trimmedUsername);
         return "redirect:/welcome";
     }
 
     @GetMapping("/welcome")
     public String welcome(HttpSession session, Model model) {
-        Object authUser = session.getAttribute(AUTH_USER);
+        Object authUser = session.getAttribute(AUTHENTICATED_USER);
         if (authUser == null) {
             return "redirect:/login";
         }
@@ -68,7 +67,9 @@ public class LoginController {
 
     @PostMapping("/logout")
     public String logout(HttpSession session) {
-        session.invalidate();
+        if (session != null) {
+            session.invalidate();
+        }
         return "redirect:/login";
     }
 }
