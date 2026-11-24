@@ -2,28 +2,24 @@ package com.example.loginapp;
 
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
-
 /**
- * Very small in-memory "user database" so the demo has both
- * a valid login path and an invalid login path to exercise.
- * Not for production use - passwords are plain text on purpose,
- * for a simple teaching/demo app only.
+ * @deprecated This teaching-app "in-memory user store" is obsolete now that authentication is backed by H2.
+ * Use {@link AuthService} directly instead.
+ *
+ * Kept only to avoid confusion when reading older materials/commits. This class is a thin wrapper around
+ * {@link AuthService} and does not contain any hard-coded users.
  */
+@Deprecated
 @Component
 public class UserStore {
 
-    private final Map<String, String> users = Map.of(
-            "admin", "admin123",
-            "john", "password1",
-            "mary", "letmein42"
-    );
+    private final AuthService authService;
+
+    public UserStore(AuthService authService) {
+        this.authService = authService;
+    }
 
     public boolean isValid(String username, String password) {
-        if (username == null || password == null) {
-            return false;
-        }
-        String storedPassword = users.get(username.trim());
-        return storedPassword != null && storedPassword.equals(password);
+        return authService.isValid(username, password);
     }
 }
