@@ -9,7 +9,9 @@
     <div class="login-box">
         <h1>Welcome, <span th:text="${username}"></span>!</h1>
         <p class="success">You have successfully logged in.</p>
-        <a class="logout-link" th:href="@{/login}">Log out</a>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="logout-link">Log out</button>
+        </form>
     </div>
 </body>
 </html>
