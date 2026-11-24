@@ -42,9 +42,9 @@ Then open: **http://localhost:8080/login**
 The app seeds a small set of users into the H2 database on startup. Use
 one of the following credentials to log in:
 
-- `alice` / `password`
-- `bob` / `password`
-- `admin` / `password`
+- `admin` / `admin123`
+- `user` / `password`
+- `alice` / `alice123`
 
 > Note: The exact seed data lives in the project’s SQL/data seeding files.
 
