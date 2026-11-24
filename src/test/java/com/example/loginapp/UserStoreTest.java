@@ -1,6 +1,6 @@
 package com.example.loginapp;
 
-import com.example.loginapp.repository.UserRepository;
+import com.example.loginapp.UserStore;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,20 +12,30 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class UserStoreTest {
 
     @Autowired
-    private UserRepository userRepository;
+    private UserStore userStore;
 
     @Test
     void seededAdminCredentialsAreAccepted() {
-        assertTrue(userRepository.isValidCredentials("admin", "admin123"));
+        assertTrue(userStore.isValidCredentials("admin", "admin123"));
+    }
+
+    @Test
+    void seededUserCredentialsAreAccepted() {
+        assertTrue(userStore.isValidCredentials("user", "password"));
+    }
+
+    @Test
+    void seededAliceCredentialsAreAccepted() {
+        assertTrue(userStore.isValidCredentials("alice", "alice123"));
     }
 
     @Test
     void wrongPasswordIsRejected() {
-        assertFalse(userRepository.isValidCredentials("admin", "wrongpassword"));
+        assertFalse(userStore.isValidCredentials("admin", "wrongpassword"));
     }
 
     @Test
     void unknownUsernameIsRejected() {
-        assertFalse(userRepository.isValidCredentials("nobody", "whatever"));
+        assertFalse(userStore.isValidCredentials("nobody", "whatever"));
     }
 }
