@@ -16,26 +16,26 @@ class UserStoreTest {
 
     @Test
     void seededAdminCredentialsAreAccepted() {
-        assertTrue(userStore.isValidCredentials("admin", "admin123"));
+        assertTrue(userStore.isValid("admin", "admin123"));
     }
 
     @Test
     void seededUserCredentialsAreAccepted() {
-        assertTrue(userStore.isValidCredentials("user", "password"));
+        assertTrue(userStore.isValid("user", "password"));
     }
 
     @Test
     void seededAliceCredentialsAreAccepted() {
-        assertTrue(userStore.isValidCredentials("alice", "alice123"));
+        assertTrue(userStore.isValid("alice", "alice123"));
     }
 
     @Test
     void wrongPasswordIsRejected() {
-        assertFalse(userStore.isValidCredentials("admin", "wrongpassword"));
+        assertFalse(userStore.isValid("admin", "wrongpassword"));
     }
 
     @Test
     void unknownUsernameIsRejected() {
-        assertFalse(userStore.isValidCredentials("nobody", "whatever"));
+        assertFalse(userStore.isValid("nobody", "whatever"));
     }
 }
