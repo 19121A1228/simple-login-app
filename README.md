@@ -41,6 +41,8 @@ Use **/logout** to end the session. After logout, the welcome page will no longe
 
 ## Running the tests
 
+### Unit / controller tests (JUnit)
+
 `LoginControllerTest` checks:
 - the login form loads,
 - valid demo credentials (from `data.sql`) allow access to the welcome page,
@@ -54,6 +56,63 @@ Or from a terminal in the project folder:
 ```bash
 mvn test
 ```
+
+### E2E tests (Playwright + Cucumber)
+
+End-to-end tests run in a real browser via Playwright and execute Cucumber scenarios against the running app.
+
+#### Prerequisites
+
+- Java 17 (to run the Spring Boot app)
+- Node.js (LTS recommended) + npm (to run the e2e test runner)
+
+#### 1) Start the app
+
+From the project root:
+
+```bash
+mvn spring-boot:run
+```
+
+Wait until the console shows the app has started, then confirm the app is reachable in a browser.
+
+#### 2) Install npm dependencies
+
+From the project root:
+
+```bash
+npm install
+```
+
+#### 3) Install Playwright browsers
+
+```bash
+npm run e2e:install
+```
+
+#### 4) Run the E2E tests
+
+Set the base URL the tests should target (example shown for local dev):
+
+```bash
+export E2E_BASE_URL="http://localhost:8080"
+npm run e2e
+```
+
+On Windows PowerShell:
+
+```powershell
+$env:E2E_BASE_URL="http://localhost:8080"
+npm run e2e
+```
+
+#### Environment variables
+
+- `E2E_BASE_URL` (required): Base URL of the running app, e.g. `http://localhost:8080`.
+- `E2E_VALID_USERNAME` (optional): Username used for a "valid login" scenario.
+- `E2E_VALID_PASSWORD` (optional): Password used for a "valid login" scenario.
+
+Do **not** put real credentials in docs or source control. Use placeholders and ensure they match the demo users configured for the app (for example, those seeded via `data.sql`).
 
 ## Project structure
 
