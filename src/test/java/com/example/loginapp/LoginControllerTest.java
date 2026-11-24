@@ -1,7 +1,5 @@
 package com.example.loginapp;
 
-package com.example.loginapp;
-
 import com.example.loginapp.controller.LoginController;
 import com.example.loginapp.service.AuthService;
 import org.junit.jupiter.api.Test;
@@ -38,7 +36,7 @@ class LoginControllerTest {
 
     @Test
     void postLoginInvalidCredentialsShowsLoginWithError() throws Exception {
-        when(authService.authenticate(anyString(), anyString())).thenReturn(false);
+        when(authService.isValid(anyString(), anyString())).thenReturn(false);
 
         mockMvc.perform(post("/login")
                         .param("username", "whoever")
@@ -50,7 +48,7 @@ class LoginControllerTest {
 
     @Test
     void postLoginValidCredentialsRedirectsToWelcomeAndStoresUserInSession() throws Exception {
-        when(authService.authenticate("whoever", "whatever")).thenReturn(true);
+        when(authService.isValid("whoever", "whatever")).thenReturn(true);
 
         MockHttpSession session = (MockHttpSession) mockMvc.perform(post("/login")
                         .param("username", "whoever")
@@ -63,7 +61,7 @@ class LoginControllerTest {
 
         // Ensure the controller stored the authenticated user in the session
         org.junit.jupiter.api.Assertions.assertNotNull(session);
-        org.junit.jupiter.api.Assertions.assertNotNull(session.getAttribute("AUTH_USER"));
+        org.junit.jupiter.api.Assertions.assertNotNull(session.getAttribute(LoginController.AUTH_USER));
     }
 
     @Test
@@ -76,7 +74,7 @@ class LoginControllerTest {
     @Test
     void getWelcomeWithSessionShowsWelcomeAndIncludesUsername() throws Exception {
         MockHttpSession session = new MockHttpSession();
-        session.setAttribute("AUTH_USER", "whoever");
+        session.setAttribute(LoginController.AUTH_USER, "whoever");
 
         mockMvc.perform(get("/welcome").session(session))
                 .andExpect(status().isOk())
@@ -87,12 +85,15 @@ class LoginControllerTest {
     @Test
     void postLogoutInvalidatesSessionAndRedirectsToLogin() throws Exception {
         MockHttpSession session = new MockHttpSession();
-        session.setAttribute("AUTH_USER", "whoever");
+        session.setAttribute(LoginController.AUTH_USER, "whoever");
 
         mockMvc.perform(post("/logout").session(session))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/login"));
 
-        org.junit.jupiter.api.Assertions.assertTrue(session.isInvalid());
+        // Verify the session no longer grants access to the protected resource.
+        mockMvc.perform(get("/welcome").session(session))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login"));
     }
 }
