@@ -74,6 +74,46 @@ Or from a terminal in the project folder:
 mvn test
 ```
 
+## E2E tests (Playwright + Gherkin)
+
+The project also includes an end-to-end (E2E) test suite using **Playwright** with **Gherkin**-style feature files.
+
+### Prerequisites
+
+- **Node.js / npm** installed (required to run the E2E tests)
+
+### Run the app (required)
+
+The E2E suite expects the application to already be running at:
+
+- **http://localhost:8080**
+
+Start the app from the project root:
+
+```bash
+mvn spring-boot:run
+```
+
+### Install E2E dependencies
+
+From the project root:
+
+```bash
+npm ci
+```
+
+### Install Playwright browsers
+
+```bash
+npm run pw:install
+```
+
+### Run the E2E suite
+
+```bash
+npm run test:e2e
+```
+
 ## Project structure
 
 ```
