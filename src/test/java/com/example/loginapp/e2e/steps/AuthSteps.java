@@ -10,7 +10,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import java.time.Duration;
-import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -73,10 +72,11 @@ public class AuthSteps {
         }
         passwordInput.fill(password);
 
-        // Submit: prefer button[type=submit], else "Log In" (case-insensitive), else any button
+        // Submit: prefer button[type=submit], else "Log In", else any button
         Locator submit = page.locator("button[type='submit']").first();
         if (submit.count() == 0) {
-            submit = page.locator("button", new Page.LocatorOptions().setHasText(Pattern.compile("log\\s*in", Pattern.CASE_INSENSITIVE))).first();
+            // Use string-based hasText for broad Playwright Java compatibility
+            submit = page.locator("button", new Page.LocatorOptions().setHasText("Log In")).first();
         }
         if (submit.count() == 0) {
             submit = page.locator("button").first();
