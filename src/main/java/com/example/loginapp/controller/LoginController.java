@@ -1,7 +1,7 @@
 package com.example.loginapp.controller;
 
-import com.example.loginapp.service.AuthService;
-import com.example.loginapp.web.LoginForm;
+import com.example.loginapp.auth.AuthService;
+import com.example.loginapp.controller.dto.LoginForm;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
