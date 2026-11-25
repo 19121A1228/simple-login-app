@@ -1,29 +1,37 @@
 package com.example.loginapp;
 
-import org.springframework.stereotype.Component;
-
 import java.util.Map;
 
 /**
- * Very small in-memory "user database" so the demo has both
- * a valid login path and an invalid login path to exercise.
- * Not for production use - passwords are plain text on purpose,
- * for a simple teaching/demo app only.
+ * Legacy/teaching-only component kept for reference.
+ *
+ * <p><strong>Unused:</strong> Authentication is handled elsewhere in the application.</p>
+ *
+ * <p>Kept only to avoid confusion when reading older materials/commits. This class uses a hard-coded in-memory
+ * map of users and does not connect to any database.</p>
+ *
+ * <p>This is a demo app: passwords are intentionally stored and compared as plain text.</p>
+ *
+ * @deprecated Unused. Kept for teaching/reference only.
  */
-@Component
+@Deprecated(forRemoval = false, since = "legacy")
 public class UserStore {
 
     private final Map<String, String> users = Map.of(
-            "admin", "admin123",
-            "john", "password1",
-            "mary", "letmein42"
+            "admin", "admin",
+            "user", "password"
     );
 
     public boolean isValid(String username, String password) {
         if (username == null || password == null) {
             return false;
         }
-        String storedPassword = users.get(username.trim());
-        return storedPassword != null && storedPassword.equals(password);
+
+        String trimmedUsername = username.trim();
+        if (trimmedUsername.isBlank()) {
+            return false;
+        }
+
+        return password.equals(users.get(trimmedUsername));
     }
 }

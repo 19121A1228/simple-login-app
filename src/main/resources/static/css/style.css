@@ -64,6 +64,8 @@ button:hover {
     padding: 8px;
     border-radius: 4px;
     font-size: 0.85rem;
+    margin-top: 12px;
+    border: 1px solid #fecaca;
 }
 
 .success {
@@ -82,4 +84,23 @@ button:hover {
     margin-top: 16px;
     color: #2563eb;
     text-decoration: none;
+}
+
+/* If logout is implemented as a <button>, style it consistently with .logout-link */
+button.logout-link,
+.logout-link[type="button"],
+.logout-link[type="submit"] {
+    background: transparent;
+    border: none;
+    padding: 0;
+    font: inherit;
+    color: #2563eb;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+button.logout-link:hover,
+.logout-link[type="button"]:hover,
+.logout-link[type="submit"]:hover {
+    text-decoration: underline;
 }

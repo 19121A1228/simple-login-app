@@ -7,20 +7,43 @@
 </head>
 <body>
     <div class="login-box">
-        <h1>Sign In</h1>
+        <h1>Login</h1>
 
-        <form th:action="@{/login}" method="post">
+        <div th:if="${loginError}" class="error" role="alert" aria-live="polite">
+            <p>Invalid username or password.</p>
+        </div>
+
+        <form th:action="@{/login}" th:object="${loginForm}" method="post">
             <label for="username">Username</label>
-            <input type="text" id="username" name="username" required autofocus>
+            <input
+                type="text"
+                id="username"
+                th:field="*{username}"
+                required
+                autofocus
+                autocomplete="username"
+            >
+            <div th:if="${#fields.hasErrors('username')}" class="error" role="alert" aria-live="polite">
+                <p th:errors="*{username}">Username error</p>
+            </div>
 
             <label for="password">Password</label>
-            <input type="password" id="password" name="password" required>
+            <input
+                type="password"
+                id="password"
+                th:field="*{password}"
+                required
+                autocomplete="current-password"
+            >
+            <div th:if="${#fields.hasErrors('password')}" class="error" role="alert" aria-live="polite">
+                <p th:errors="*{password}">Password error</p>
+            </div>
 
             <button type="submit">Log In</button>
         </form>
 
         <p class="hint">
-            Any username and password is accepted - there's no validation.
+            Use a demo user from the seeded H2 database.
         </p>
     </div>
 </body>

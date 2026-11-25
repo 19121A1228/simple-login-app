@@ -10,13 +10,17 @@ class UserStoreTest {
     private final UserStore userStore = new UserStore();
 
     @Test
-    void validCredentialsAreAccepted() {
-        assertTrue(userStore.isValid("admin", "admin123"));
-        assertTrue(userStore.isValid("john", "password1"));
+    void adminCredentialsAreAccepted() {
+        assertTrue(userStore.isValid("admin", "admin"));
     }
 
     @Test
-    void invalidPasswordIsRejected() {
+    void userCredentialsAreAccepted() {
+        assertTrue(userStore.isValid("user", "password"));
+    }
+
+    @Test
+    void wrongPasswordIsRejected() {
         assertFalse(userStore.isValid("admin", "wrongpassword"));
     }
 
@@ -26,8 +30,22 @@ class UserStoreTest {
     }
 
     @Test
-    void nullValuesAreRejected() {
-        assertFalse(userStore.isValid(null, "admin123"));
+    void nullUsernameIsRejected() {
+        assertFalse(userStore.isValid(null, "admin"));
+    }
+
+    @Test
+    void nullPasswordIsRejected() {
         assertFalse(userStore.isValid("admin", null));
+    }
+
+    @Test
+    void blankUsernameIsRejected() {
+        assertFalse(userStore.isValid("   ", "admin"));
+    }
+
+    @Test
+    void blankPasswordIsRejected() {
+        assertFalse(userStore.isValid("admin", "   "));
     }
 }
