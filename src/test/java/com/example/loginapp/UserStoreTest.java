@@ -11,21 +11,41 @@ class UserStoreTest {
 
     @Test
     void adminCredentialsAreAccepted() {
-        assertTrue(userStore.authenticate("admin", "admin"));
+        assertTrue(userStore.isValid("admin", "admin"));
     }
 
     @Test
     void userCredentialsAreAccepted() {
-        assertTrue(userStore.authenticate("user", "password"));
+        assertTrue(userStore.isValid("user", "password"));
     }
 
     @Test
     void wrongPasswordIsRejected() {
-        assertFalse(userStore.authenticate("admin", "wrongpassword"));
+        assertFalse(userStore.isValid("admin", "wrongpassword"));
     }
 
     @Test
     void unknownUsernameIsRejected() {
-        assertFalse(userStore.authenticate("nobody", "whatever"));
+        assertFalse(userStore.isValid("nobody", "whatever"));
+    }
+
+    @Test
+    void nullUsernameIsRejected() {
+        assertFalse(userStore.isValid(null, "admin"));
+    }
+
+    @Test
+    void nullPasswordIsRejected() {
+        assertFalse(userStore.isValid("admin", null));
+    }
+
+    @Test
+    void blankUsernameIsRejected() {
+        assertFalse(userStore.isValid("   ", "admin"));
+    }
+
+    @Test
+    void blankPasswordIsRejected() {
+        assertFalse(userStore.isValid("admin", "   "));
     }
 }
