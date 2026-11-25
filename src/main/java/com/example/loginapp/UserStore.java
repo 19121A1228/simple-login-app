@@ -1,27 +1,26 @@
 package com.example.loginapp;
 
-import org.springframework.jdbc.core.JdbcTemplate;
+import java.util.Map;
 
 /**
  * Legacy/teaching-only component kept for reference.
  *
- * <p><strong>Unused:</strong> Authentication is handled by the H2-backed {@code AuthService}.</p>
+ * <p><strong>Unused:</strong> Authentication is handled elsewhere in the application.</p>
  *
- * <p>Kept only to avoid confusion when reading older materials/commits. This class validates credentials against
- * the H2 database and does not contain any hard-coded users.</p>
+ * <p>Kept only to avoid confusion when reading older materials/commits. This class uses a hard-coded in-memory
+ * map of users and does not connect to any database.</p>
  *
  * <p>This is a demo app: passwords are intentionally stored and compared as plain text.</p>
  *
- * @deprecated Unused in favor of the H2-backed {@code AuthService}. Kept for teaching/reference only.
+ * @deprecated Unused. Kept for teaching/reference only.
  */
 @Deprecated(forRemoval = false, since = "legacy")
 public class UserStore {
 
-    private final JdbcTemplate jdbcTemplate;
-
-    public UserStore(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
+    private final Map<String, String> users = Map.of(
+            "admin", "admin",
+            "user", "password"
+    );
 
     public boolean isValid(String username, String password) {
         if (username == null || password == null) {
@@ -33,13 +32,6 @@ public class UserStore {
             return false;
         }
 
-        Integer count = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM users WHERE username = ? AND password = ?",
-                Integer.class,
-                trimmedUsername,
-                password
-        );
-
-        return count != null && count > 0;
+        return password.equals(users.get(trimmedUsername));
     }
 }
