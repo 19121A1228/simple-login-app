@@ -1,18 +1,20 @@
 package com.example.loginapp;
 
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
 
 /**
- * @deprecated This teaching-app "H2-backed user store" is obsolete now that authentication is backed by H2.
+ * Legacy/teaching-only component kept for reference.
  *
- * Kept only to avoid confusion when reading older materials/commits. This class validates credentials against
- * the H2 database and does not contain any hard-coded users.
+ * <p><strong>Unused:</strong> Authentication is handled by the H2-backed {@code AuthService}.</p>
+ *
+ * <p>Kept only to avoid confusion when reading older materials/commits. This class validates credentials against
+ * the H2 database and does not contain any hard-coded users.</p>
  *
  * <p>This is a demo app: passwords are intentionally stored and compared as plain text.</p>
+ *
+ * @deprecated Unused in favor of the H2-backed {@code AuthService}. Kept for teaching/reference only.
  */
-@Deprecated
-@Component
+@Deprecated(forRemoval = false, since = "legacy")
 public class UserStore {
 
     private final JdbcTemplate jdbcTemplate;
