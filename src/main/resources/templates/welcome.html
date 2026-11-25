@@ -2,13 +2,18 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
     <div class="login-box">
-        <h1>Welcome, <span th:text="${username}"></span>!</h1>
+        <h1>
+            Welcome, <span th:text="${username}">username</span>!
+        </h1>
+
         <p class="success">You have successfully logged in.</p>
+
         <form th:action="@{/logout}" method="post">
             <button type="submit" class="logout-link">Log out</button>
         </form>
