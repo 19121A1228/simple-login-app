@@ -1,6 +1,7 @@
 package com.example.loginapp;
 
 import com.example.loginapp.controller.LoginController;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -28,6 +29,28 @@ class LoginControllerTest {
     }
 
     @Test
+    void postLoginBlankFieldsReturnsLoginAndShowsFieldErrors() throws Exception {
+        mockMvc.perform(post("/login")
+                        .param("username", "")
+                        .param("password", ""))
+                .andExpect(status().isOk())
+                .andExpect(view().name("login"))
+                // generic: assert field errors exist without coupling to exact attribute names
+                .andExpect(model().hasErrors())
+                .andExpect(model().attributeHasFieldErrors("loginRequest", "username", "password"));
+    }
+
+    @Test
+    void postLoginInvalidCredentialsReturnsLoginAndSetsLoginError() throws Exception {
+        mockMvc.perform(post("/login")
+                        .param("username", "admin")
+                        .param("password", "wrong"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("login"))
+                .andExpect(model().attributeExists("loginError"));
+    }
+
+    @Test
     void postLoginValidSeededCredentialsRedirectsToWelcomeAndStoresUserInSession() throws Exception {
         MvcResult result = mockMvc.perform(post("/login")
                         .param("username", "admin")
@@ -38,18 +61,8 @@ class LoginControllerTest {
 
         MockHttpSession session = (MockHttpSession) result.getRequest().getSession(false);
 
-        org.junit.jupiter.api.Assertions.assertNotNull(session);
-        org.junit.jupiter.api.Assertions.assertNotNull(session.getAttribute(LoginController.AUTHENTICATED_USER));
-    }
-
-    @Test
-    void postLoginInvalidCredentialsShowsLoginWithError() throws Exception {
-        mockMvc.perform(post("/login")
-                        .param("username", "admin")
-                        .param("password", "wrong"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("login"))
-                .andExpect(model().attributeExists("error"));
+        Assertions.assertNotNull(session);
+        Assertions.assertNotNull(session.getAttribute(LoginController.AUTH_USER));
     }
 
     @Test
@@ -60,7 +73,7 @@ class LoginControllerTest {
     }
 
     @Test
-    void getWelcomeWithSessionShowsWelcome() throws Exception {
+    void getWelcomeWithSessionRendersWelcome() throws Exception {
         MvcResult loginResult = mockMvc.perform(post("/login")
                         .param("username", "admin")
                         .param("password", "admin123"))
@@ -69,7 +82,7 @@ class LoginControllerTest {
                 .andReturn();
 
         MockHttpSession session = (MockHttpSession) loginResult.getRequest().getSession(false);
-        org.junit.jupiter.api.Assertions.assertNotNull(session);
+        Assertions.assertNotNull(session);
 
         mockMvc.perform(get("/welcome").session(session))
                 .andExpect(status().isOk())
@@ -86,7 +99,7 @@ class LoginControllerTest {
                 .andReturn();
 
         MockHttpSession session = (MockHttpSession) loginResult.getRequest().getSession(false);
-        org.junit.jupiter.api.Assertions.assertNotNull(session);
+        Assertions.assertNotNull(session);
 
         mockMvc.perform(post("/logout").session(session))
                 .andExpect(status().is3xxRedirection())
