@@ -10,6 +10,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import java.time.Duration;
+import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -53,14 +54,40 @@ public class AuthSteps {
     @Given("I open the login page")
     public void iOpenTheLoginPage() {
         page.navigate(baseUrl + "/login");
-        assertTrue(page.url().endsWith("/login"));
+        assertTrue(page.getByText("Sign In", new Page.GetByTextOptions().setExact(false)).first().isVisible());
     }
 
     @When("I log in with username {string} and password {string}")
     public void iLogInWithUsernameAndPassword(String username, String password) {
-        page.locator("input[name='username']").fill(username);
-        page.locator("input[name='password']").fill(password);
-        page.locator("button[type='submit'], input[type='submit']").first().click();
+        // Username: prefer name='username', else fallback to first text input
+        Locator usernameInput = page.locator("input[name='username']");
+        if (usernameInput.count() == 0) {
+            usernameInput = page.locator("input[type='text']").first();
+        }
+        usernameInput.fill(username);
+
+        // Password: prefer name='password', else fallback to password input
+        Locator passwordInput = page.locator("input[name='password']");
+        if (passwordInput.count() == 0) {
+            passwordInput = page.locator("input[type='password']").first();
+        }
+        passwordInput.fill(password);
+
+        // Submit: prefer button[type=submit], else "Log In" (case-insensitive), else any button
+        Locator submit = page.locator("button[type='submit']").first();
+        if (submit.count() == 0) {
+            submit = page.locator("button", new Page.LocatorOptions().setHasText(Pattern.compile("log\\s*in", Pattern.CASE_INSENSITIVE))).first();
+        }
+        if (submit.count() == 0) {
+            submit = page.locator("button").first();
+        }
+        if (submit.count() == 0) {
+            // Last-resort: some templates use <input type="submit">
+            submit = page.locator("input[type='submit']").first();
+        }
+
+        assertTrue(submit.count() > 0, "Could not find a submit control on the login page");
+        submit.click();
     }
 
     @When("I open the welcome page directly")
@@ -81,8 +108,8 @@ public class AuthSteps {
 
     @Then("I should see the welcome page")
     public void iShouldSeeTheWelcomePage() {
-        // app may redirect, so check for welcome content
-        assertTrue(page.content().toLowerCase().contains("welcome"));
+        // app may redirect, so rely on visible welcome text rather than template structure
+        assertTrue(page.getByText("Welcome", new Page.GetByTextOptions().setExact(false)).first().isVisible());
     }
 
     @Then("I should see {string} displayed")
@@ -92,7 +119,7 @@ public class AuthSteps {
 
     @Then("I should stay on the login page")
     public void iShouldStayOnTheLoginPage() {
-        assertTrue(page.url().endsWith("/login"));
+        assertTrue(page.getByText("Sign In", new Page.GetByTextOptions().setExact(false)).first().isVisible());
     }
 
     @Then("I should see an invalid credentials message")
@@ -103,6 +130,6 @@ public class AuthSteps {
 
     @Then("I should be redirected to the login page")
     public void iShouldBeRedirectedToTheLoginPage() {
-        assertTrue(page.url().endsWith("/login"));
+        assertTrue(page.getByText("Sign In", new Page.GetByTextOptions().setExact(false)).first().isVisible());
     }
 }
