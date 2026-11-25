@@ -1,6 +1,6 @@
 # Simple Login App
 
-A minimal Spring Boot web app demonstrating **session-based login** with credentials stored in an **in-memory H2 database**.
+A minimal Spring Boot web app demonstrating **session-based login** with credential validation against an **in-memory H2 database**.
 
 ## Tech stack
 - Java 17
@@ -8,8 +8,23 @@ A minimal Spring Boot web app demonstrating **session-based login** with credent
 - Maven
 - H2 (in-memory)
 - JUnit 5
+- Playwright (E2E, via Maven profile)
 
-## How to run
+## Auth behavior (demo)
+
+- `GET /login` shows the login form.
+- `POST /login` validates the submitted username/password against H2.
+- `GET /welcome` is **session-protected** and requires a valid login session (otherwise redirects to `/login`).
+- Logout is performed via **POST `/logout`** (clears the session).
+
+## Demo users (seeded via `data.sql`) — demo only
+
+These credentials are for demonstration/testing only:
+
+- `demo1` / `password1`
+- `demo2` / `password2`
+
+## How to run locally
 
 ### In IntelliJ IDEA
 1. **File → Open...** → select the `simple-login-app` folder (contains `pom.xml`).
@@ -17,7 +32,7 @@ A minimal Spring Boot web app demonstrating **session-based login** with credent
 3. Run `src/main/java/com/example/loginapp/LoginApplication.java`.
 4. Open: **http://localhost:8080/login**
 
-### From the command line
+### From the command line (dev)
 From the project root:
 
 ```bash
@@ -26,60 +41,41 @@ mvn spring-boot:run
 
 Then open: **http://localhost:8080/login**
 
-## Demo users (seeded via `data.sql`)
+### Build a runnable JAR and run it
+From the project root:
 
-Use one of these credentials:
+```bash
+mvn package
+java -jar target/*.jar
+```
 
-- `admin` / `admin123`
-- `user` / `password`
-- `alice` / `alice123`
-
-## Auth behavior (demo)
-
-- `GET /login` shows the login form.
-- `POST /login` validates the submitted username/password against H2.
-- `GET /welcome` is **protected** and requires a valid login session (otherwise redirects to `/login`).
-- Logout is performed via **POST `/logout`** (clears the session).
+Then open: **http://localhost:8080/login**
 
 ## H2 database / console
 
 - The app uses an **in-memory** H2 database and seeds demo users on startup.
-- If enabled in `application.properties`, the H2 console is available at:
+- H2 Console:
   - **http://localhost:8080/h2-console**
+- JDBC URL (in-memory):
+  - `jdbc:h2:mem:testdb`
+
+> Note: If you change the datasource name in `application.properties`, the JDBC URL must match it.
 
 ## Running tests
 
+### Unit tests
 ```bash
 mvn test
 ```
 
-## E2E tests (Playwright)
-
-Prerequisite: Node.js / npm.
-
-1. Start the app:
+### E2E tests (Playwright)
+Run the E2E suite using the Maven profile:
 
 ```bash
-mvn spring-boot:run
+mvn verify -P e2e
 ```
 
-2. Install E2E dependencies:
-
-```bash
-npm install
-```
-
-3. Install Playwright browsers:
-
-```bash
-npm run pw:install
-```
-
-4. Run E2E suite:
-
-```bash
-npm run test:e2e
-```
+Playwright downloads the required browsers automatically on the first run (this may take a few minutes).
 
 ## Project structure
 
