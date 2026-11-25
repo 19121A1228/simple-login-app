@@ -1,23 +1,29 @@
 package com.example.loginapp.controller;
 
-import com.example.loginapp.UserStore;
+import com.example.loginapp.service.AuthService;
+import com.example.loginapp.web.LoginForm;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class LoginController {
 
-    public static final String AUTHENTICATED_USER = "AUTHENTICATED_USER";
+    /**
+     * Session attribute key for the authenticated username.
+     * Kept compatible with existing behavior while aligning with the new requirement.
+     */
+    public static final String AUTH_USER = "AUTH_USER";
 
-    private final UserStore userStore;
+    private final AuthService authService;
 
-    public LoginController(UserStore userStore) {
-        this.userStore = userStore;
+    public LoginController(AuthService authService) {
+        this.authService = authService;
     }
 
     // Root just redirects to the login page
@@ -26,37 +32,50 @@ public class LoginController {
         return "redirect:/login";
     }
 
-    // Show the empty login form
+    /**
+     * GET /login returns login view with an empty LoginForm.
+     * If already authenticated, redirect to /welcome.
+     */
     @GetMapping("/login")
-    public String loginForm(HttpSession session) {
-        if (session.getAttribute(AUTHENTICATED_USER) != null) {
+    public String loginForm(HttpSession session, Model model) {
+        if (session.getAttribute(AUTH_USER) != null) {
             return "redirect:/welcome";
         }
+        model.addAttribute("loginForm", new LoginForm());
         return "login";
     }
 
-    // Validate username/password. On success store username in session and redirect to welcome.
+    /**
+     * POST /login binds @Valid LoginForm and checks BindingResult.
+     * Authenticates via AuthService (backed by H2). On success sets session attribute and PRG redirect to /welcome.
+     * On invalid credentials, return login view with model attribute loginError.
+     */
     @PostMapping("/login")
-    public String handleLogin(@RequestParam String username,
-                              @RequestParam String password,
+    public String handleLogin(@Valid @ModelAttribute("loginForm") LoginForm loginForm,
+                              BindingResult bindingResult,
                               HttpSession session,
                               Model model) {
 
-        String trimmedUsername = StringUtils.trimWhitespace(username);
-
-        if (!userStore.isValid(username, password)) {
-            model.addAttribute("error", "Invalid username or password");
-            model.addAttribute("username", trimmedUsername);
+        if (bindingResult.hasErrors()) {
             return "login";
         }
 
-        session.setAttribute(AUTHENTICATED_USER, trimmedUsername);
+        boolean authenticated = authService.authenticate(loginForm.getUsername(), loginForm.getPassword());
+        if (!authenticated) {
+            model.addAttribute("loginError", true);
+            return "login";
+        }
+
+        session.setAttribute(AUTH_USER, loginForm.getUsername());
         return "redirect:/welcome";
     }
 
+    /**
+     * GET /welcome checks session; if not authenticated redirect to /login; else render welcome with username.
+     */
     @GetMapping("/welcome")
     public String welcome(HttpSession session, Model model) {
-        Object authUser = session.getAttribute(AUTHENTICATED_USER);
+        Object authUser = session.getAttribute(AUTH_USER);
         if (authUser == null) {
             return "redirect:/login";
         }
@@ -65,6 +84,9 @@ public class LoginController {
         return "welcome";
     }
 
+    /**
+     * POST /logout invalidates session and redirects to /login.
+     */
     @PostMapping("/logout")
     public String logout(HttpSession session) {
         if (session != null) {
