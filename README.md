@@ -57,7 +57,7 @@ Then open: **http://localhost:8080/login**
 - H2 Console:
   - **http://localhost:8080/h2-console**
 - JDBC URL (in-memory):
-  - `jdbc:h2:mem:testdb`
+  - `jdbc:h2:mem:loginapp`
 
 > Note: If you change the datasource name in `application.properties`, the JDBC URL must match it.
 
@@ -75,7 +75,7 @@ Run the E2E suite using the Maven profile:
 mvn verify -P e2e
 ```
 
-Playwright downloads the required browsers automatically on the first run (this may take a few minutes).
+Playwright downloads the required browsers automatically on the first run (this may take a few minutes). No Node/npm is required.
 
 ## Project structure
 
