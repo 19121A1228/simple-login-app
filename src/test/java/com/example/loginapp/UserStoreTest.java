@@ -1,36 +1,31 @@
 package com.example.loginapp;
 
-import com.example.loginapp.auth.AuthService;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest
 class UserStoreTest {
 
-    @Autowired
-    private AuthService authService;
+    private final UserStore userStore = new UserStore();
 
     @Test
-    void demo1CredentialsAreAccepted() {
-        assertTrue(authService.authenticate("demo1", "password1"));
+    void adminCredentialsAreAccepted() {
+        assertTrue(userStore.authenticate("admin", "admin"));
     }
 
     @Test
-    void demo2CredentialsAreAccepted() {
-        assertTrue(authService.authenticate("demo2", "password2"));
+    void userCredentialsAreAccepted() {
+        assertTrue(userStore.authenticate("user", "password"));
     }
 
     @Test
     void wrongPasswordIsRejected() {
-        assertFalse(authService.authenticate("demo1", "wrongpassword"));
+        assertFalse(userStore.authenticate("admin", "wrongpassword"));
     }
 
     @Test
     void unknownUsernameIsRejected() {
-        assertFalse(authService.authenticate("nobody", "whatever"));
+        assertFalse(userStore.authenticate("nobody", "whatever"));
     }
 }
