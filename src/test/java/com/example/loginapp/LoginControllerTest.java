@@ -37,13 +37,13 @@ class LoginControllerTest {
                 .andExpect(view().name("login"))
                 // generic: assert field errors exist without coupling to exact attribute names
                 .andExpect(model().hasErrors())
-                .andExpect(model().attributeHasFieldErrors("loginRequest", "username", "password"));
+                .andExpect(model().attributeHasFieldErrors("loginForm", "username", "password"));
     }
 
     @Test
     void postLoginInvalidCredentialsReturnsLoginAndSetsLoginError() throws Exception {
         mockMvc.perform(post("/login")
-                        .param("username", "admin")
+                        .param("username", "demo1")
                         .param("password", "wrong"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("login"))
@@ -53,8 +53,8 @@ class LoginControllerTest {
     @Test
     void postLoginValidSeededCredentialsRedirectsToWelcomeAndStoresUserInSession() throws Exception {
         MvcResult result = mockMvc.perform(post("/login")
-                        .param("username", "admin")
-                        .param("password", "admin123"))
+                        .param("username", "demo1")
+                        .param("password", "password1"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/welcome"))
                 .andReturn();
@@ -75,8 +75,8 @@ class LoginControllerTest {
     @Test
     void getWelcomeWithSessionRendersWelcome() throws Exception {
         MvcResult loginResult = mockMvc.perform(post("/login")
-                        .param("username", "admin")
-                        .param("password", "admin123"))
+                        .param("username", "demo1")
+                        .param("password", "password1"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/welcome"))
                 .andReturn();
@@ -92,8 +92,8 @@ class LoginControllerTest {
     @Test
     void postLogoutInvalidatesSessionAndRedirectsToLogin() throws Exception {
         MvcResult loginResult = mockMvc.perform(post("/login")
-                        .param("username", "admin")
-                        .param("password", "admin123"))
+                        .param("username", "demo1")
+                        .param("password", "password1"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/welcome"))
                 .andReturn();
